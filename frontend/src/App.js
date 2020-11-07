@@ -248,7 +248,6 @@ class ProposalView extends React.Component {
     const observer = new MutationObserver((list, observer) => {
       var widget = document.querySelectorAll(".justwidget--close");
       if (widget.length !== 0) {
-        console.log("Have chat widget!");
         widget.forEach((w) => {
           w.addEventListener("click", () => {
             this.removeChatBot();
@@ -490,7 +489,6 @@ function numberToScore(number) {
   number = Math.round(number);
   var result = "";
   SCORE_TO_NUMBER.forEach((val, key) => {
-    console.log("" + key + "=>" + val);
     if (number === val) {
       result = key;
     }
@@ -572,7 +570,7 @@ class App extends React.Component {
     this.setState({ hasCamera: true });
 
     ScanditSDK.configure(
-      "ASBviBTHC1P5OGkunx5EGb8Mj8O7F2tOnWYUq/9tOzE6cWjsWiDj1GN6/jhNbdf9AjfCLDZ5ivm1QvKLTkRP6rpq55myVvNWRVwsFEdrjpFycotciC1rmv99Zm3pLYkgdxJ3BPYIJvg5ABnxJ0TUjTgZ8zl2tSsb9MODTlieIoqeqHTU0fE1+7KBv2LM0Gwi9D4qSlrvOw54Tw6lTVRJx99gW/e41Ao/lfRt+Ba10x+rpGjJPLNaJ2A3ag7w5AyI3Fuit3I0nK+Nz0pBVkpj1fxfF4PCgJjXxQS1bY+aRNPoUgM8eQmYLBzn2t5EVWnP7SyyeEd5Q8KJOOmlShNiZ4fMMoAoEB0n+5pEKmZqp30e0F2ixfjLsxq4yVxtT3i8emf2G3hkbn1J6K8mgSRJE5Hen96abCDrfA1Jib4gNHXLMaze+4tux7LQoxNEkykQo9PAdwKs+ESV79F7VKq06qRbaURe3Pq22davsjsJ+2WHA+TfuCVVWFo3E9wZt598/8dC1p5WckK3fM88Iq2BrXP2x2/NlKlqg11mIvwq5UZZp0pM+WulCyznNjlz32JbCICr4acvrj33cm4Ej32ZU6zHdOTX4k7V9GOO20q6OAsNv6tlS8CCXUmCVPfFWVFdf67PeyiD6KlrFnLsCKb/fMoaWYssgq/Rs+nSlVZnF1q8bywb3MBcXaU6vK/ECe3h8xapFM0ZPPv5jhAIrYIpuOGPvzr0Pzs6Ug5DHjarsXA7sWxa9T5xohN+xoQb9VQe7uNRyNfINoCbo6n1dqTRMfgeQGQqr8QUra8F2DkexGM160rNjpFn1BioU4Vu1w==",
+      "Afv/sljHRzaIQ7ijGAezMPcsV0INIz2oE0F6AUNW54CLIzlK/gm3kdtWZtWSetO5SEsIah5LlIPFd1uiIkuXNNtf2daHNpVMJlrCxethbuvrQzAaYlSL1iB7Ctc5Ps09f1j/CpZ8cYfJQGRycUodUcUHBaBNFt118yoDb18gYVktueB26Wjm5aD2tyrtBjbqCcLwUew1WjJ84yW4WNBBto8UpitsY8iaviaoPFU1JTgky0bK81pmWOEuCgjMcFWX50ApMFZ8V1KLwo0m6pG8ztvODH4dVkFzp4TMsjr2uafimRdAmYSOHXxRRuKw9+QXaO9FrdqzklS1IOa46KC4QiX1FXpSHx9iK8dN7y6E+EssF1j4SKfOGW1O0suxCH/d0WBoO36J4QqgGba10D7iLOvU1Nb5T2ZbUNv51onTN60AnvBTbLN2YLGj3ls4SBqsf0c+/DNe20g8+o51RBNgQo6T+wKQPYcksMSzsjgYtqry36yUk/uQ/ph1D5rr7ybUrh3SPXQa1ZeH9sOWTdyiUq+zR5r4HFLW3ODuNPM8iswFsmRMc3p/NCdJ84rTX8v7KA0D70MYF3zjY0eQadV3kdVpTPKJlIPe3JBrWsAMCf6iwg9tsyGUjJhh50gmuuSSuMNQJUgR3GQjJrcHmfeBsD/obd+H/SimE147JeQ3XNKqJWgzco/I+qUyj0N4Vvwl1nyK4Tnk/UFZtZU/W1FxshQRX0AzAhde8LSSCtE1jOsBlhZDD3ZM9W4KbFNaKOJFULuFzAluyhkP35wZ/Z/7Azzrrg8nL6Y51VqyLGMm5chH7bBTMl6pzKZrLEGdjFfTj4CxCIfsvGv4yRR6IN4=",
       {
         engineLocation: "https://cdn.jsdelivr.net/npm/scandit-sdk@5.x/build/",
       }
@@ -666,12 +664,17 @@ class App extends React.Component {
 
   renderAggregateData() {
     let aggregateNutri = 0;
+    let aggregatePrice = 0;
+    let aggregatePlanet = 0;
     this.state.products.forEach((product) => {
       aggregateNutri += scoreToNumber(product.score_people);
+      aggregatePlanet += scoreToNumber(product.score_planet);
+      aggregatePrice += scoreToNumber(product.score_price) * 2;
     });
     aggregateNutri /= this.state.products.length;
-    console.log(aggregateNutri);
+    aggregatePlanet /= this.state.products.length;
     let aggregateNutriText = numberToScore(aggregateNutri.toFixed(0));
+    let aggregatePlanetText = numberToScore(aggregatePlanet.toFixed(0));
 
     return (
       <div className="small-section">
@@ -679,7 +682,7 @@ class App extends React.Component {
           <div classname="level-item has-text-centered">
             <div>
               <p className="heading">Total</p>
-              <p className="title is-4">30 EUR</p>
+              <p className="title is-4">{aggregatePrice} EUR</p>
             </div>
           </div>
           <div classname="level-item has-text-centered">
@@ -691,7 +694,7 @@ class App extends React.Component {
           <div classname="level-item has-text-centered">
             <div>
               <p className="heading">Planet</p>
-              <p className="title is-4">B</p>
+              <p className="title is-4">{aggregatePlanetText}</p>
             </div>
           </div>
         </nav>
