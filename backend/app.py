@@ -111,9 +111,9 @@ def enrich_product_scores(product, preferences):
 @app.route('/api/products/<bar_code>')
 def get_product(bar_code):
     preferences = {
-        'people': request.args.get('people', default=1),
-        'price': request.args.get('price', default=1),
-        'planet': request.args.get('planet', default=1)
+        'people': int(request.args.get('people', default=1)),
+        'price': int(request.args.get('price', default=1)),
+        'planet': int(request.args.get('planet', default=1))
     }
     product = openfoodfacts.products.get_product(bar_code)
     recommended = {}
