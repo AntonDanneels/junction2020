@@ -63,17 +63,30 @@ class ProposalView extends React.Component {
       error: false,
       product: null,
       recommendations: [],
+      hasChatBot: false,
     };
   }
   componentDidMount() {
-    fetch("http://192.168.0.170:8080/api/products/" + this.props.code)
+    var people = scoreToNumber(this.props.people);
+    var price = scoreToNumber(this.props.price);
+    var planet = scoreToNumber(this.props.planet);
+    fetch(
+      "https://nutreat-backend.azurewebsites.net/api/products/" +
+        this.props.code +
+        "?people=" +
+        people +
+        "&price=" +
+        price +
+        "&planet=" +
+        planet
+    )
       .then((result) => result.json())
       .then((result) => {
         console.log(result);
         this.setState({
           loading: false,
           product: result.product,
-          recommendations: result.recommended.products,
+          recommendations: result.recommended.products || [],
         });
       })
       .catch((error) => this.setState({ loading: false, error: true }));
@@ -130,6 +143,130 @@ class ProposalView extends React.Component {
     );
   }
 
+  startChatbot() {
+    window.JustWidgetBasePath = "https://bot.jaicp.com";
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.charset = "utf-8";
+    window.JustWidgetRawParams = { barcode: this.state.product._id };
+    var JustWidgetRawParams = { barcode: this.state.product._id };
+    window.JustWidgetAttributes = {
+      senderName: "Chat widget",
+      options: {
+        headline: { text: "", hide: "Свернуть", show: false },
+        names: { assistantName: "", userName: "", show: false },
+        captions: {
+          inputPlaceholder: "",
+          loadHistory: "Загрузить историю сообщений",
+          errorOccurred: "Возникла ошибка",
+          viewLog: "посмотреть лог ошибки",
+          errorLog: "Лог ошибки",
+          copyLog: "Скопировать лог",
+          closeLog: "Закрыть",
+          imageDownload: "Закрыть",
+          dndLabel: "Перетащите файл сюда",
+        },
+        showLogo: false,
+        logo: "",
+        channel: null,
+        percentage: 100,
+        copySource: null,
+        sendBtn: { show: false },
+        avatar: {
+          show: false,
+          assistantAvatarUrl: "",
+          userAvatarUrl: "",
+          operatorAvatarUrl: "",
+          size: 24,
+        },
+        fileUpload: {
+          show: false,
+          uploadErrorMessage: "",
+          tooBigFileMessage: "",
+        },
+        position: "right",
+        involvement: {
+          enabled: true,
+          events: [
+            { eventType: "website_time", value: 0.2 },
+            { eventType: "page_time", value: 0.2 },
+          ],
+        },
+        bubble: {
+          show: true,
+          delay: "1",
+          bubbletext: "Any questions?",
+          mobileBubbletext: "",
+        },
+        sessionByUserMessage: { show: false, welcomemessage: "", delay: 100 },
+        positionOffset: { bottom: 24, right: 24 },
+        palette: {
+          headlineBackgroundColor: "#5A9CED",
+          headlineTextColor: "dark",
+          chatBackgroundColor: "#FFFFFF",
+          chatBackgroundOpacity: 100,
+          userMessageBackgroundColor: "#CBDFF8",
+          userMessageTextColor: "dark",
+          botMessageBackgroundColor: "#F4F5F5",
+          botMessageTextColor: "dark",
+          formButtonsColor: "#5A9CED",
+          formTextColor: "#000",
+        },
+        font: "Roboto",
+        sizes: { font: "small", avatar: "big" },
+      },
+      theme: "defaultv3",
+      position: "right",
+      percentage: 100,
+    };
+    window.JustWidgetName = "250558427-hackjunction2-250558427-KpY-11274527138";
+    script.src =
+      window.JustWidgetBasePath +
+      "/s/" +
+      window.JustWidgetAttributes.theme +
+      "/js/index.js";
+    script.dataset.origin = "justwidget";
+
+    document.body.appendChild(script);
+
+    if (!window.JustWidgetAttributes.options.notUseStyles) {
+      var style = document.createElement("link");
+      style.rel = "stylesheet";
+      style.href =
+        window.JustWidgetBasePath +
+        "/s/" +
+        window.JustWidgetAttributes.theme +
+        "/css/index.css";
+      style.dataset.origin = "justwidget";
+
+      document.head.appendChild(style);
+    }
+
+    const targetNode = document.getElementById("body");
+    const config = { attributes: true, childList: true, subtree: true };
+
+    const observer = new MutationObserver((list, observer) => {
+      var widget = document.querySelectorAll(".justwidget--close");
+      if (widget.length !== 0) {
+        console.log("Have chat widget!");
+        widget.forEach((w) => {
+          w.addEventListener("click", () => {
+            this.removeChatBot();
+            observer.disconnect();
+          });
+        });
+      }
+    });
+    observer.observe(targetNode, config);
+  }
+
+  removeChatBot() {
+    var widget = document.getElementById("widget-root");
+    if (widget) {
+      widget.remove();
+    }
+  }
+
   renderProduct() {
     let recommendations = [];
     this.state.recommendations.forEach((product) => {
@@ -142,7 +279,7 @@ class ProposalView extends React.Component {
             <figure className="media-left">
               <p className="image is-64x64">
                 <img
-                  src={this.state.product.selected_images.front.display.fr}
+                  src={this.state.product.image_small_url}
                   className="is-rounded"
                 />
               </p>
@@ -187,6 +324,8 @@ class ProposalView extends React.Component {
                   href="/scan"
                   onClick={(e) => {
                     e.preventDefault();
+                    this.setState({ hasChatBot: true });
+                    this.startChatbot();
                   }}
                 >
                   More info
@@ -217,6 +356,7 @@ class ProposalView extends React.Component {
   }
 
   renderError() {
+    this.startChatbot();
     return (
       <div className="content hero">
         <div className="hero-body">
@@ -277,6 +417,7 @@ class ProposalView extends React.Component {
                 <button
                   class="button is-danger is-large is-rounded"
                   onClick={() => {
+                    this.removeChatBot();
                     if (this.props.onCancel) {
                       this.props.onCancel();
                     }
@@ -405,11 +546,7 @@ class App extends React.Component {
       <div className="has-background-light product is-rounded columns is-mobile">
         <div className="column is-2">
           <p className="img is-rounded">
-            <img
-              src={product.selected_images.front.display.fr}
-              alt=""
-              className="is-rounded"
-            />
+            <img src={product.image_small_url} alt="" className="is-rounded" />
           </p>
         </div>
         <div className="column is-8 product-text">
@@ -618,6 +755,9 @@ class App extends React.Component {
       if (this.state.hasInfo) {
         return (
           <ProposalView
+            people={this.state.healthScore}
+            planet={this.state.planetScore}
+            price={this.state.priceScore}
             code={this.state.code}
             onRetry={() => {
               this.setState({ code: "", hasInfo: false });
