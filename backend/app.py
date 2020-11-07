@@ -1,7 +1,6 @@
 from flask import Flask, request
 from flask_cors import CORS
 from random import randrange
-import time
 import openfoodfacts
 
 app = Flask(__name__)
@@ -80,9 +79,9 @@ def custom_nutri(nutriments):
         return 'E', nutri_score
 
 def score_product_on_preference(product, preferences):
-    return (product['grade_people'] + 5) * preferences['people'] + \
-    (product['grade_planet'] + 5) * preferences['planet'] + \
-    (product['grade_price'] + 5) * preferences['price']
+    return (product['grade_people'] + 5)/45 / preferences['people']**2 + \
+    product['grade_planet']/45 / preferences['planet']**2 + \
+    product['grade_price']/45 / preferences['price']**2
 
 def rank_recommendations(recommendations):
     return sorted(recommendations, key=lambda p: p['personal_score'])
@@ -98,14 +97,14 @@ def enrich_product_scores(product, preferences):
         product['score_people'] = 'N/A'
         product['grade_people'] = 40
     scores = ['A', 'B', 'C', 'D', 'E']
-    price_random = randrange(5)
-    product['score_price'] = scores[price_random]
-    product['grade_price'] = price_random*9
-    planet_random = randrange(5)
-    product['score_planet'] = scores[planet_random]
-    product['grade_planet'] = planet_random*9
+    price_random = randrange(45)
+    product['score_price'] = scores[price_random//9]
+    product['grade_price'] = price_random
+    planet_random = randrange(45)
+    product['score_planet'] = scores[planet_random//9]
+    product['grade_planet'] = planet_random
     product['personal_score'] = score_product_on_preference(product, preferences)
-    print('scores  (People, Planet, Price):', product['grade_people'], product['grade_planet'], product['grade_price'], product['personal_score'])
+    print('scores  (People, Planet, Price):', product['grade_people'], product['grade_price'], product['grade_planet'], product['personal_score'])
     return product
 
 @app.route('/api/products/<bar_code>')
@@ -115,6 +114,7 @@ def get_product(bar_code):
         'price': int(request.args.get('price', default=1)),
         'planet': int(request.args.get('planet', default=1))
     }
+    print(preferences)
     product = openfoodfacts.products.get_product(bar_code)
     recommended = {}
     if product['status'] == 1:
