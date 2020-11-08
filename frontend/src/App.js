@@ -392,6 +392,7 @@ class ProposalView extends React.Component {
                 <button
                   className="button is-success is-large is-rounded"
                   onClick={() => {
+                    this.removeChatBot();
                     if (this.props.onSuccess) {
                       this.props.onSuccess(this.state.product);
                     }
@@ -408,6 +409,7 @@ class ProposalView extends React.Component {
                 <button
                   className="button is-info is-large is-rounded"
                   onClick={() => {
+                    this.removeChatBot();
                     if (this.props.onRetry) {
                       this.props.onRetry();
                     }
