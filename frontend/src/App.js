@@ -125,13 +125,17 @@ class ProposalView extends React.Component {
                       <span class="fa-stack fa-lg">
                         <i class="fab fa-envira fa-stack-1x has-text-success"></i>
                       </span>
-                      <p className=" has-text-black">A</p>
+                      <p className=" has-text-black">
+                        {product.score_planet.toUpperCase()}
+                      </p>
                     </span>
                     <span class="icon is-large">
                       <span class="fa-stack fa-lg">
                         <i class="fas fa-euro-sign fa-stack-1x has-text-warning"></i>
                       </span>
-                      <p className=" has-text-black">A</p>
+                      <p className=" has-text-black">
+                        {product.score_price.toUpperCase()}
+                      </p>
                     </span>
                   </a>
                 </div>
@@ -306,13 +310,17 @@ class ProposalView extends React.Component {
                       <span class="fa-stack fa-lg">
                         <i class="fab fa-envira fa-stack-1x has-text-success"></i>
                       </span>
-                      <p className=" has-text-black">A</p>
+                      <p className=" has-text-black">
+                        {this.state.product.score_planet.toUpperCase()}
+                      </p>
                     </span>
                     <span class="icon is-large">
                       <span class="fa-stack fa-lg">
                         <i class="fas fa-euro-sign fa-stack-1x has-text-warning"></i>
                       </span>
-                      <p className=" has-text-black">A</p>
+                      <p className=" has-text-black">
+                        {this.state.product.score_price.toUpperCase()}
+                      </p>
                     </span>
                   </a>
                 </div>
@@ -446,13 +454,11 @@ function renderNavigation() {
     >
       <div className="navbar-brand">
         <a className="navbar-item" href="/">
-          <h1 className="title is-4 has-text-light has-text-weight-bold">
-            Nutreat
-          </h1>
+          <img src="/logo_leaf.png" alt="logo" />
         </a>
         <a
           role="button"
-          className="navbar-burger burger"
+          className="navbar-burger"
           aria-label="menu"
           aria-expanded="false"
           data-target="navbarBasicExample"
